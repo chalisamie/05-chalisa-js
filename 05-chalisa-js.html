@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f4f4f4;
+      }
+      .container {
+        width: 50%;
+        margin: auto;
+        background-color: white;
+        padding: 20px;
+        border: 2px solid black;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .product-form {
+        padding: 10px;
+      }
+      .product-dashboard {
+        margin-top: 20px;
+        padding: 10px;
+      }
+      .product-dashboard img {
+        width: 150px;
+        height: 120px;
+      }
+      .cart {
+        padding: 10px;
+        margin-top: 20px;
+      }
+      .cart img {
+        width: 50px;
+        height: 50px;
+      }
+      .remove-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      .final-price {
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      .btn-create,
+      .btn-add,
+      .btn-calculate,
+      .btn-clear,
+      .btn-clear-checkboxes {
+        padding: 5px 10px;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Shopping Cart</h1>
+
+      <div class="product-form">
+        <h3>Add Item for selection</h3>
+        <label>Product Name: <input type="text" id="product-name" /></label>
+        <label>Price: <input type="text" id="product-price" /></label> <br />
+        <label>Image URL: <input type="text" id="product-image" /></label>
+        <button class="btn-create" onclick="createProduct()">
+          Create Product
+        </button>
+        <button class="btn-clear" onclick="clearForm()">Clear</button>
+      </div>
+      <hr />
+      <div class="product-dashboard" id="product-dashboard">
+        <h3>Product Dashboard</h3>
+        <div id="product-list"></div>
+        <button class="btn-clear-checkboxes" onclick="clearSelectedProducts()">
+          Clear Selected Products
+        </button>
+      </div>
+      <hr />
+      <div class="cart" id="cart">
+        <h3>Product Form</h3>
+        <div id="cart-items"></div>
+        <button class="btn-calculate" onclick="calculateFinalPrice()">
+          Calculate Final Price
+        </button>
+      </div>
+
+      <div class="final-price" id="final-price">You have to pay: 0</div>
+    </div>
+
+    <script>
+      let cart = {};
+
+      function createProduct() {
+        const name = document.getElementById("product-name").value;
+        const price = document.getElementById("product-price").value;
+        const imageUrl = document.getElementById("product-image").value;
+
+        if (name && price && !isNaN(price)) {
+          const productList = document.getElementById("product-list");
+
+          const newProduct = document.createElement("div");
+          const productId = `product-${new Date().getTime()}`; // Unique ID
+          newProduct.id = productId;
+          newProduct.innerHTML = `
+                    <input type="checkbox" onchange="addToCart(this, '${name}', ${price}, '${imageUrl}')"> 
+                    <img src="${imageUrl}" alt="${name}">
+                    <span>${name}</span>
+                    <span>$${price}</span>
+                `;
+
+          productList.appendChild(newProduct);
+
+          clearForm();
+        } else {
+          alert("Please enter valid name and price");
+        }
+      }
+
+      function clearForm() {
+        document.getElementById("product-name").value = "";
+        document.getElementById("product-price").value = "";
+        document.getElementById("product-image").value = "";
+      }
+
+      function addToCart(checkbox, name, price, imageUrl) {
+        const cartItems = document.getElementById("cart-items");
+        if (checkbox.checked) {
+          cart[name] = price;
+          const cartItem = document.createElement("div");
+          cartItem.id = `cart-${name}`;
+          cartItem.innerHTML = `
+                    <img src="${imageUrl}" alt="${name}">
+                    <span>${name}</span>
+                    <span>$${price}</span>
+                    <button class="remove-btn" onclick="removeFromCart('${name}')">Remove</button>
+                `;
+          cartItems.appendChild(cartItem);
+        } else {
+          removeFromCart(name);
+        }
+      }
+
+      function removeFromCart(name) {
+        delete cart[name];
+        const cartItem = document.getElementById(`cart-${name}`);
+        if (cartItem) {
+          cartItem.remove();
+        }
+      }
+
+      function calculateFinalPrice() {
+        let totalPrice = 0;
+        for (const price of Object.values(cart)) {
+          totalPrice += price;
+        }
+        document.getElementById(
+          "final-price"
+        ).innerText = `You have to pay: ${totalPrice}`;
+      }
+
+      function clearSelectedProducts() {
+        const productList = document.getElementById("product-list");
+        const checkboxes = productList.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        );
+        checkboxes.forEach((checkbox) => {
+          const productDiv = checkbox.parentElement;
+          productDiv.remove();
+        });
+      }
+    </script>
+  </body>
+</html>
